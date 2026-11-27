@@ -8,6 +8,9 @@ echo "4. repeat these steps"
 
 
 prev_cpu_value=""
+cpu_cores=$(nproc)
+cpu_model=$(lscpu | grep "Model name:" | sed 's/Model name:[[:space:]]*//')
+
 
 while true; do
     clear
@@ -40,9 +43,21 @@ while true; do
     fi
 
     echo "Used CPU percent: ${cpu_used_value} %  (${arrow})"
-
+    echo "CPU Model: ${cpu_model}"
+    echo "CPU cores: ${cpu_cores}"
     prev_cpu_value=$raw_cpu_used_value
+    
+    echo "RAM Stats:"  
+    mem_total=$(grep "MemTotal:" /proc/meminfo | grep -oE "[0-9]+")
+    mem_avail=$(grep "MemAvailable:" /proc/meminfo | grep -oE "[0-9]+")
 
+    mem_used_mb=$(((mem_total - mem_avail) / 1024)) #answer in mb
+    mem_total_mb=$((mem_total / 1024))
+
+    raw_mem_percent=$(((mem_total - mem_avail) * 1000 / mem_total))
+    mem_percent="$((raw_mem_percent / 10)).$((raw_mem_percent % 10))"
+    
+    echo "RAM Used: ${mem_used_mb} MB / ${mem_total_mb} MB (${mem_percent}%)"
     ### End of cycle ###
     sleep 1
 
